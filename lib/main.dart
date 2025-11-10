@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
-import 'landing_page.dart'; // You'll create this file next
+import 'Speirs/landing_page.dart';
 
-// Main entry point - from MONDARES.pdf and Speirs-Midterm-Takeaway.pdf
 void main() {
-  runApp(FitnessApp()); // [attached_file:2][attached_file:3]
+  runApp(FitnessApp());
 }
 
-// Root widget - structure from Speirs-Midterm-Takeaway.pdf
 class FitnessApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // [attached_file:3]
-      debugShowCheckedModeBanner: false, // [attached_file:2]
-      title: 'Fitness Wellness App', // [attached_file:3]
+      debugShowCheckedModeBanner: false,
+      title: 'Fitness Wellness App',
       theme: ThemeData(
-        primarySwatch: Colors.blue, // [attached_file:3]
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-        ), // [attached_file:1]
+        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: LandingPage(), // Start with your landing page [attached_file:3]
+      home: LandingPage(),
     );
   }
 }
