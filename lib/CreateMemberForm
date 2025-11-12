@@ -1,0 +1,193 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(const CreateMemberForm());
+}
+
+class CreateMemberForm extends StatelessWidget {
+  const CreateMemberForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const MemberFormPage(),
+    );
+  }
+}
+
+class MemberFormPage extends StatefulWidget {
+  const MemberFormPage({super.key});
+
+  @override
+  State<MemberFormPage> createState() => _BuildCreateMemberForm();
+}
+
+class _BuildCreateMemberForm extends State<MemberFormPage> {
+  final formKey = GlobalKey<FormState>();
+
+  final TextEditingController lastname = TextEditingController();
+  final TextEditingController firstname = TextEditingController();
+  final TextEditingController dob = TextEditingController();
+  final TextEditingController height = TextEditingController();
+  final TextEditingController weight = TextEditingController();
+  final TextEditingController bmi = TextEditingController();
+
+  Map<String, dynamic> createdMember = {};
+  bool showMemberInfo = false;
+  bool isLoading = false;
+
+  // Replace with your actual API URL
+  final Uri apiUrl = Uri.parse('https://your-api-url.com/api/members');
+
+  // --- POST request function ---
+  Future<void> createMember() async {
+    if (!formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    final postData = {
+      'first_name': firstname.text,
+      'last_name': lastname.text,
+      'date_of_birth': dob.text,
+      'height': height.text,
+      'weight': weight.text,
+      'bmi': bmi.text,
+    };
+
+    try {
+      final response = await http.post(
+        apiUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(postData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonData = jsonDecode(response.body);
+        setState(() {
+          createdMember = jsonData['member'] ?? jsonData;
+          showMemberInfo = true;
+        });
+
+        // Clear inputs
+        lastname.clear();
+        firstname.clear();
+        dob.clear();
+        height.clear();
+        weight.clear();
+        bmi.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    lastname.dispose();
+    firstname.dispose();
+    dob.dispose();
+    height.dispose();
+    weight.dispose();
+    bmi.dispose();
+    super.dispose();
+  }
+
+  Widget buildField(String label, TextEditingController controller,
+      {bool number = false}) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      keyboardType: number ? TextInputType.number : TextInputType.text,
+      validator: (value) {
+        if (value == null || value.isEmpty) return '$label is required';
+        if (number && double.tryParse(value) == null) return 'Enter a valid number';
+        return null;
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Member')),
+      body: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              buildField('Last Name', lastname),
+              const SizedBox(height: 16),
+              buildField('First Name', firstname),
+              const SizedBox(height: 16),
+              buildField('Date of Birth', dob),
+              const SizedBox(height: 16),
+              buildField('Height', height, number: true),
+              const SizedBox(height: 16),
+              buildField('Weight', weight, number: true),
+              const SizedBox(height: 16),
+              buildField('BMI', bmi, number: true),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: isLoading ? null : createMember,
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Submit'),
+              ),
+              const SizedBox(height: 16),
+
+              if (createdMember.isNotEmpty)
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() => showMemberInfo = !showMemberInfo);
+                      },
+                      child: Text(showMemberInfo
+                          ? 'Hide Member Info'
+                          : 'Show Member Info'),
+                    ),
+                    if (showMemberInfo)
+                      Card(
+                        color: Colors.lightBlue[50],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Created Member Info',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('First Name: ${createdMember['first_name'] ?? ''}'),
+                              Text('Last Name: ${createdMember['last_name'] ?? ''}'),
+                              Text('DOB: ${createdMember['date_of_birth'] ?? ''}'),
+                              Text('Height: ${createdMember['height'] ?? ''}'),
+                              Text('Weight: ${createdMember['weight'] ?? ''}'),
+                              Text('BMI: ${createdMember['bmi'] ?? ''}'),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
