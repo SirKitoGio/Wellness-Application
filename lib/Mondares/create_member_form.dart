@@ -2,27 +2,19 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(const CreateMemberForm());
-}
-
 class CreateMemberForm extends StatelessWidget {
-  const CreateMemberForm({super.key});
+  final String groupId;
+  const CreateMemberForm({required this.groupId, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
-      ),
-      home: const MemberFormPage(),
-    );
+    return MemberFormPage(groupId: groupId);
   }
 }
 
 class MemberFormPage extends StatefulWidget {
-  const MemberFormPage({super.key});
+  final String groupId;
+  const MemberFormPage({required this.groupId, super.key});
 
   @override
   State<MemberFormPage> createState() => _BuildCreateMemberForm();
@@ -50,20 +42,21 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
   }
 
   Future<void> createMember() async {
-    String groupId = "1";
     final postData = {
       'first_name': firstname.text,
       'last_name': lastname.text,
-      'dob': dob.text,
+      'birthday': dob.text,
       'height': height.text,
       'weight': weight.text,
       'bmi': bmi.text,
-      'group': groupId,
+      'group_id': widget.groupId,
     };
 
     try {
       final response = await http.post(
-        Uri.parse('https://poltergeists.online/api/create/member/$groupId'),
+        Uri.parse(
+          'https://poltergeists.online/api/create/member/${widget.groupId}',
+        ),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(postData),
       );
