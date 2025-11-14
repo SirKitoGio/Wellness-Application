@@ -106,10 +106,10 @@ class _MemberWellnessPageState extends State<MemberWellnessPage> {
         return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: wellnessPlans.map((plan) {
-                final day =plan['day_of_week'] ?? plan['day'] ?? plan['dayOfWeek'] ?? 'N/A';
-                final diet = plan['diet'] ?? plan['diet_plan'] ?? 'N/A';
-                final workout = plan['workout'] ?? plan['work_plan'] ?? 'N/A';
-                final tips = plan['tips'] ?? plan['note'] ?? 'N/A';
+                final day = plan['section'] ?? 'N/A';
+                final diet = plan['diet_plan'] ?? 'N/A';
+                final workout = plan['work_plan'] ?? 'N/A';
+                final tips = plan['note'] ?? 'N/A';
                 return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -121,9 +121,7 @@ class _MemberWellnessPageState extends State<MemberWellnessPage> {
                             children: [
                                 Text(
                                 day is String ? (day[0].toUpperCase() + day.substring(1)) : '$day',
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
                                 const SizedBox(height: 8),
                                 buildInfoRow('Diet', diet?.toString()),
                                 buildInfoRow('Workout', workout?.toString()),
@@ -196,7 +194,8 @@ class _MemberWellnessPageState extends State<MemberWellnessPage> {
                             style: ElevatedButton.styleFrom(
                                 minimumSize: const Size.fromHeight(50),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
+                                    borderRadius: BorderRadius.circular(8)
+                                ),
                             ),
                             onPressed: () async {
                                 if (!_formKey.currentState!.validate() || selectedDay == null) {
