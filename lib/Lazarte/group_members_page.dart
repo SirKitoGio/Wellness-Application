@@ -7,11 +7,7 @@ class GroupMembersPage extends StatefulWidget {
   final String groupId;
   final String groupName;
 
-  GroupMembersPage({
-  
-    required this.groupId,
-    required this.groupName,
-  })
+  GroupMembersPage({required this.groupId, required this.groupName});
 
   @override
   State<GroupMembersPage> createState() => _GroupMembersPageState();
@@ -40,11 +36,12 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
       final uri = Uri.parse('$_apiBaseUrl/get/members/${widget.groupId}');
       print(uri);
       final response = await http.get(uri);
+      print(response.body);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _members = (data is Map && data.containsKey('data'))
-              ? data['data']
+          _members = (data is Map && data.containsKey('body'))
+              ? data['body']
               : data;
         });
       }
@@ -64,9 +61,13 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
     try {
       final response = await http.post(
         Uri.parse('$_apiBaseUrl/create/member/${widget.groupId}'),
-        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(postData),
+        headers: {
+          'Content-Type': 'application/json',
+          "Accept": "application/json",
+        },
       );
+      print(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         _lastNameController.clear();
         _firstNameController.clear();
