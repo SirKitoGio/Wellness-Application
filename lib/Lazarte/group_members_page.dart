@@ -21,7 +21,6 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   List<dynamic> _members = [];
   bool _isLoading = true;
 
-  // Lazarte owns all controllers/state for members
   final _lastNameController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _birthdayController = TextEditingController();
@@ -93,7 +92,7 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
           );
           Navigator.pop(context);
         }
-        _getMembers(); // Refresh list
+        _getMembers();
       } else {
         if (mounted) {
           ScaffoldMessenger.of(
@@ -121,7 +120,7 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
         heightController: _heightController,
         weightController: _weightController,
         bmiController: _bmiController,
-        onSubmit: _createMember, // Connect to Lazarte submit logic
+        onSubmit: _createMember,
       ),
     );
   }

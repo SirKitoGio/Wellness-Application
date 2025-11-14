@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class CreateMemberForm extends StatelessWidget {
-  // All controllers are injected, so Lazarte manages state and collects values
   final TextEditingController lastNameController;
   final TextEditingController firstNameController;
   final TextEditingController dobController;
