@@ -3,26 +3,22 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:wellness_application/Speirs/group_page.dart';
 
-// Landing page with Google-style search based from my Midterm-Takeaway - Speirs
 class LandingPage extends StatefulWidget {
   @override
   State<LandingPage> createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
-  // Controllers and variables Speirs-Midterm-Takeaway & Speirs-Final-Exercise-1
   final _groupNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String uri = 'https://poltergeists.online';
 
-  // Clean up when page closes Speirs-Midterm-Takeaway and Midterm assingment on Dipose iwas memory leaks
   @override
   void dispose() {
     _groupNameController.dispose();
     super.dispose();
   }
 
-  // Search for group on server [MONDARES.pdf]
   searchGroup() async {
     final response = await http.get(
       Uri.parse(
@@ -46,7 +42,6 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  // Build the UI [Speirs-Midterm-Takeaway.pdf]
   @override
   Widget build(BuildContext context) {
     return Scaffold(
