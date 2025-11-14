@@ -146,7 +146,7 @@ class _GroupPageState extends State<GroupPage> {
                                 controller: _sectionController,
                                 decoration: InputDecoration(
                                   labelText: 'Section',
-                                  hintText: 'Enter section name (e.g., IT-2B)',
+                                  hintText: 'Enter section name (e.g., 204I)',
                                   prefixIcon: Icon(Icons.class_),
                                 ),
                                 validator: (value) {

@@ -1,108 +1,40 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class CreateMemberForm extends StatelessWidget {
-  final String groupId;
-  const CreateMemberForm({required this.groupId, super.key});
+  // All controllers are injected, so Lazarte manages state and collects values
+  final TextEditingController lastNameController;
+  final TextEditingController firstNameController;
+  final TextEditingController dobController;
+  final TextEditingController heightController;
+  final TextEditingController weightController;
+  final TextEditingController bmiController;
+  final VoidCallback onSubmit;
+
+  const CreateMemberForm({
+    super.key,
+    required this.lastNameController,
+    required this.firstNameController,
+    required this.dobController,
+    required this.heightController,
+    required this.weightController,
+    required this.bmiController,
+    required this.onSubmit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MemberFormPage(groupId: groupId);
-  }
-}
+    final _formKey = GlobalKey<FormState>();
 
-class MemberFormPage extends StatefulWidget {
-  final String groupId;
-  const MemberFormPage({required this.groupId, super.key});
-
-  @override
-  State<MemberFormPage> createState() => _BuildCreateMemberForm();
-}
-
-class _BuildCreateMemberForm extends State<MemberFormPage> {
-  final form = GlobalKey<FormState>();
-
-  final TextEditingController lastname = TextEditingController();
-  final TextEditingController firstname = TextEditingController();
-  final TextEditingController dob = TextEditingController();
-  final TextEditingController height = TextEditingController();
-  final TextEditingController weight = TextEditingController();
-  final TextEditingController bmi = TextEditingController();
-
-  @override
-  void dispose() {
-    lastname.dispose();
-    firstname.dispose();
-    dob.dispose();
-    height.dispose();
-    weight.dispose();
-    bmi.dispose();
-    super.dispose();
-  }
-
-  Future<void> createMember() async {
-    final postData = {
-      'first_name': firstname.text,
-      'last_name': lastname.text,
-      'birthday': dob.text,
-      'height': height.text,
-      'weight': weight.text,
-      'bmi': bmi.text,
-      'group_id': widget.groupId,
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse(
-          'https://poltergeists.online/api/create/member/${widget.groupId}',
-        ),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(postData),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        lastname.clear();
-        firstname.clear();
-        dob.clear();
-        height.clear();
-        weight.clear();
-        bmi.clear();
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Member added successfully!')),
-          );
-          Navigator.pop(context);
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed: ${response.body}')));
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add Member')),
-      body: Form(
-        key: form,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                controller: lastname,
+                controller: lastNameController,
                 decoration: const InputDecoration(
                   labelText: 'Last Name',
                   border: OutlineInputBorder(),
@@ -112,7 +44,7 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: firstname,
+                controller: firstNameController,
                 decoration: const InputDecoration(
                   labelText: 'First Name',
                   border: OutlineInputBorder(),
@@ -122,10 +54,10 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: dob,
+                controller: dobController,
                 decoration: const InputDecoration(
                   labelText: 'Date of Birth',
-                  hintText: "mm/dd/yyyy",
+                  hintText: "yyyy-mm-dd",
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) =>
@@ -133,11 +65,12 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: height,
+                controller: heightController,
                 decoration: const InputDecoration(
-                  labelText: 'Height',
+                  labelText: 'Height (cm)',
                   border: OutlineInputBorder(),
                 ),
+                keyboardType: TextInputType.number,
                 validator: (v) =>
                     (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v))
                     ? 'Valid number required'
@@ -145,11 +78,12 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: weight,
+                controller: weightController,
                 decoration: const InputDecoration(
-                  labelText: 'Weight',
+                  labelText: 'Weight (kg)',
                   border: OutlineInputBorder(),
                 ),
+                keyboardType: TextInputType.number,
                 validator: (v) =>
                     (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v))
                     ? 'Valid number required'
@@ -157,11 +91,12 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: bmi,
+                controller: bmiController,
                 decoration: const InputDecoration(
                   labelText: 'BMI',
                   border: OutlineInputBorder(),
                 ),
+                keyboardType: TextInputType.number,
                 validator: (v) =>
                     (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v))
                     ? 'Valid number required'
@@ -178,8 +113,8 @@ class _BuildCreateMemberForm extends State<MemberFormPage> {
                   ),
                 ),
                 onPressed: () {
-                  if (form.currentState!.validate()) {
-                    createMember();
+                  if (_formKey.currentState!.validate()) {
+                    onSubmit();
                   }
                 },
                 child: const Text('Submit', style: TextStyle(fontSize: 18)),
