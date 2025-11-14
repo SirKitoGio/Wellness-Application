@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../Mondares/create_member_form.dart';
+import '../Cutaran/member_wellness_page.dart';
 
 class GroupMembersPage extends StatefulWidget {
   final String groupId;
@@ -146,46 +147,62 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
         final String bmi = member['bmi']?.toString() ?? 'N/A';
         final String initial = (firstName.isNotEmpty ? firstName[0] : '')
             .toUpperCase();
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  child: Text(initial, style: const TextStyle(fontSize: 24)),
+
+        // --- ADD THIS: Wrap your Card with GestureDetector ---
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MemberWellnessPage(
+                  groupId: widget.groupId,
+                  memberId: memberId,
+                  memberName: fullName,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        fullName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Birthday: $birthday",
-                        style: const TextStyle(color: Colors.purple),
-                      ),
-                      Text(
-                        "BMI: $bmi",
-                        style: const TextStyle(color: Colors.purple),
-                      ),
-                    ],
+              ),
+            );
+          },
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    child: Text(initial, style: const TextStyle(fontSize: 24)),
                   ),
-                ),
-                const Icon(Icons.arrow_forward_ios, color: Colors.purple),
-              ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fullName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Birthday: $birthday",
+                          style: const TextStyle(color: Colors.purple),
+                        ),
+                        Text(
+                          "BMI: $bmi",
+                          style: const TextStyle(color: Colors.purple),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, color: Colors.purple),
+                ],
+              ),
             ),
           ),
         );
