@@ -4,14 +4,14 @@ import 'dart:convert';
 import '../Mondares/create_member_form.dart';
 
 class GroupMembersPage extends StatefulWidget {
-  final int groupId;
+  final String groupId;
   final String groupName;
 
-  const GroupMembersPage({
-    Key? key,
+  GroupMembersPage({
+  
     required this.groupId,
     required this.groupName,
-  }) : super(key: key);
+  })
 
   @override
   State<GroupMembersPage> createState() => _GroupMembersPageState();
@@ -35,8 +35,10 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
   Future<void> _getMembers() async {
+    print(widget);
     try {
       final uri = Uri.parse('$_apiBaseUrl/get/members/${widget.groupId}');
+      print(uri);
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -57,7 +59,7 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
       'height': _heightController.text,
       'weight': _weightController.text,
       'bmi': _bmiController.text,
-      'group_id': widget.groupId.toString(),
+      'group_id': widget.groupId,
     };
     try {
       final response = await http.post(
