@@ -20,32 +20,10 @@ class CreateMemberForm extends StatelessWidget {
     required this.onSubmit,
   });
 
-  Widget buildTextFormField({
-    required TextEditingController controller,
-    required String label,
-    String? hint,
-    String? Function(String?)? validator,
-    TextInputType? keyboardType,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: const OutlineInputBorder(),
-        alignLabelWithHint: true,
-      ),
-      keyboardType: keyboardType,
-      validator: validator ?? (v) {
-        if (v == null || v.isEmpty) return '$label required';
-        return null;
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -54,37 +32,74 @@ class CreateMemberForm extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              buildTextFormField(
+              TextFormField(
                 controller: lastNameController,
-                label: 'Last Name',
-                validator: (v) => (v == null || v.length < 2) ? 'Last name required' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Last Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    (v == null || v.length < 2) ? "Last name required" : null,
               ),
-              buildTextFormField(
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: firstNameController,
-                label: 'First Name',
+                decoration: const InputDecoration(
+                  labelText: 'First Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? "First name required" : null,
               ),
-              buildTextFormField(
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: dobController,
-                label: 'Date of Birth',
-                hint: 'yyyy-mm-dd',
+                decoration: const InputDecoration(
+                  labelText: 'Date of Birth',
+                  hintText: "yyyy-mm-dd",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? "Date required" : null,
               ),
-              buildTextFormField(
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: heightController,
-                label: 'Height (cm)',
+                decoration: const InputDecoration(
+                  labelText: 'Height (cm)',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
-                validator: (v) => (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v)) ? 'Valid number required' : null,
+                validator: (v) =>
+                    (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v))
+                    ? 'Valid number required'
+                    : null,
               ),
-              buildTextFormField(
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: weightController,
-                label: 'Weight (kg)',
+                decoration: const InputDecoration(
+                  labelText: 'Weight (kg)',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
-                validator: (v) => (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v)) ? 'Valid number required' : null,
+                validator: (v) =>
+                    (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v))
+                    ? 'Valid number required'
+                    : null,
               ),
-              buildTextFormField(
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: bmiController,
-                label: 'BMI',
+                decoration: const InputDecoration(
+                  labelText: 'BMI',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
-                validator: (v) => (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v)) ? 'Valid number required' : null,
+                validator: (v) =>
+                    (v == null || !RegExp(r'^\d+(\.\d+)?$').hasMatch(v))
+                    ? 'Valid number required'
+                    : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
