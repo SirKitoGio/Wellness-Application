@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../Lazarte/group_members_page.dart';
 
-// Group page - Shows or creates group [MONDARES.pdf]
 class GroupPage extends StatefulWidget {
   final Map<dynamic, dynamic> groupData;
   final String groupName;
@@ -74,9 +74,17 @@ class _GroupPageState extends State<GroupPage> {
               if (!showCreateButton && widget.groupData['group_id'] != null)
                 GestureDetector(
                   onTap: () {
-                    // Will navigate to members page later
-                    print('Tapped - will go to members page');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GroupMembersPage(
+                          groupId: widget.groupData['group_id'],
+                          groupName: widget.groupData['group_name'],
+                        ),
+                      ),
+                    );
                   },
+
                   child: Card(
                     elevation: 12,
                     shape: RoundedRectangleBorder(
