@@ -19,7 +19,6 @@ class GroupMembersPage extends StatefulWidget {
 
 class _GroupMembersPageState extends State<GroupMembersPage> {
   List<dynamic> _members = [];
-  bool _isLoading = true;
 
   final _lastNameController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -36,9 +35,6 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
   Future<void> _getMembers() async {
-    setState(() {
-      _isLoading = true;
-    });
     try {
       final uri = Uri.parse('$_apiBaseUrl/get/members/${widget.groupId}');
       final response = await http.get(uri);
@@ -48,18 +44,9 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
           _members = (data is Map && data.containsKey('data'))
               ? data['data']
               : data;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    } catch (e) {}
   }
 
   Future<void> _createMember() async {
@@ -137,7 +124,6 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (_members.isEmpty)
       return const Center(
         child: Text(
