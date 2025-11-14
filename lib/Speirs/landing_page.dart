@@ -11,7 +11,7 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   final _groupNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  String uri = 'https://poltergeists.online';
+  final String uri = 'https://poltergeists.online';
 
   @override
   void dispose() {
@@ -20,48 +20,63 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   Future<void> searchGroup() async {
-    final response = await http.get(
-      Uri.parse(
-        '$uri/api/get/group/information?group_name=${_groupNameController.text}',
-      ),
-    );
+    final query = Uri.encodeComponent(_groupNameController.text.trim());
+    final url = Uri.parse('$uri/api/get/group/information?group_name=$query');
 
-    var apiData = jsonDecode(response.body);
-    print('API Response: $apiData');
+    try {
+      final response = await http.get(url);
 
-    // Make sure the apiData is valid and contains a body list
-    if (response.statusCode == 200 &&
-        apiData is Map &&
-        apiData.containsKey('body')) {
-      List<dynamic> groupList = apiData['body'];
-      // Find first group that matches entered group name
-      var foundGroup = groupList.firstWhere(
-        (group) =>
-            group['group_name'].toString().toLowerCase() ==
-            _groupNameController.text.toLowerCase(),
-        orElse: () => null,
-      );
+      if (response.statusCode != 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('API Error: ${response.statusCode}')),
+        );
+        return;
+      }
 
-      // If a matching group is found, navigate, else show error
+      final apiData = jsonDecode(response.body);
+      if (apiData is! Map || !apiData.containsKey('body')) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unexpected API response')),
+        );
+        return;
+      }
+
+      final groupList = apiData['body'] as List<dynamic>;
+      if (groupList.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No groups found')),
+        );
+        return;
+      }
+
+      // Search for exact match
+      dynamic? foundGroup;
+      for (var group in groupList) {
+        if ((group['group_name'] ?? '').toString().toLowerCase() ==
+            _groupNameController.text.trim().toLowerCase()) {
+          foundGroup = group;
+          break;
+        }
+      }
+
       if (foundGroup != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => GroupPage(
               groupData: foundGroup,
-              groupName: foundGroup['group_name'],
+              groupName: foundGroup['group_name'] ?? _groupNameController.text,
             ),
           ),
         );
       } else {
-        // Show error message
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Group not found!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Group not found!')),
+        );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('API Error: Could not fetch groups!')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
   }
@@ -88,32 +103,33 @@ class _LandingPageState extends State<LandingPage> {
                       fontFamily: 'Arial',
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   TextFormField(
                     controller: _groupNameController,
                     decoration: InputDecoration(
                       labelText: 'Search Group',
                       hintText: 'Enter your group name',
-                      prefixIcon: Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Please enter group name';
                       }
                       return null;
                     },
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: 200,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {}
-                        searchGroup();
+                        if (_formKey.currentState!.validate()) {
+                          searchGroup();
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue[900],
@@ -122,7 +138,7 @@ class _LandingPageState extends State<LandingPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Search',
                         style: TextStyle(
                           fontSize: 18,
