@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../Mondares/create_member_form.dart'; // Import the modular member form
+import '../Mondares/create_member_form.dart';
 
 class GroupMembersPage extends StatefulWidget {
-  final int groupId;
+  final String groupId;
   final String groupName;
 
-  const GroupMembersPage({
-    Key? key,
-    required this.groupId,
-    required this.groupName,
-  }) : super(key: key);
+  GroupMembersPage({required this.groupId, required this.groupName});
 
   @override
   State<GroupMembersPage> createState() => _GroupMembersPageState();
@@ -19,7 +15,6 @@ class GroupMembersPage extends StatefulWidget {
 
 class _GroupMembersPageState extends State<GroupMembersPage> {
   List<dynamic> _members = [];
-  bool _isLoading = true;
 
   final _lastNameController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -36,30 +31,21 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
   Future<void> _getMembers() async {
-    setState(() {
-      _isLoading = true;
-    });
+    print(widget);
     try {
       final uri = Uri.parse('$_apiBaseUrl/get/members/${widget.groupId}');
+      print(uri);
       final response = await http.get(uri);
+      print(response.body);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _members = (data is Map && data.containsKey('data'))
-              ? data['data']
+          _members = (data is Map && data.containsKey('body'))
+              ? data['body']
               : data;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    } catch (e) {}
   }
 
   Future<void> _createMember() async {
@@ -70,14 +56,18 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
       'height': _heightController.text,
       'weight': _weightController.text,
       'bmi': _bmiController.text,
-      'group_id': widget.groupId.toString(),
+      'group_id': widget.groupId,
     };
     try {
       final response = await http.post(
         Uri.parse('$_apiBaseUrl/create/member/${widget.groupId}'),
-        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(postData),
+        headers: {
+          'Content-Type': 'application/json',
+          "Accept": "application/json",
+        },
       );
+      print(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         _lastNameController.clear();
         _firstNameController.clear();
@@ -137,7 +127,6 @@ class _GroupMembersPageState extends State<GroupMembersPage> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (_members.isEmpty)
       return const Center(
         child: Text(

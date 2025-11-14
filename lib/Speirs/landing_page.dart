@@ -3,27 +3,23 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:wellness_application/Speirs/group_page.dart';
 
-// Landing page with Google-style search based from my Midterm-Takeaway - Speirs
 class LandingPage extends StatefulWidget {
   @override
   State<LandingPage> createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
-  // Controllers and variables Speirs-Midterm-Takeaway & Speirs-Final-Exercise-1
   final _groupNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String uri = 'https://poltergeists.online';
 
-  // Clean up when page closes Speirs-Midterm-Takeaway and Midterm assingment on Dipose iwas memory leaks
   @override
   void dispose() {
     _groupNameController.dispose();
     super.dispose();
   }
 
-  // Search for group on server [MONDARES.pdf]
-  searchGroup() async {
+  Future<void> searchGroup() async {
     final response = await http.get(
       Uri.parse(
         '$uri/api/get/group/information?group_name=${_groupNameController.text}',
@@ -33,20 +29,43 @@ class _LandingPageState extends State<LandingPage> {
     var apiData = jsonDecode(response.body);
     print('API Response: $apiData');
 
-    if (response.statusCode == 200) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => GroupPage(
-            groupData: apiData,
-            groupName: _groupNameController.text,
+    // Make sure the apiData is valid and contains a body list
+    if (response.statusCode == 200 &&
+        apiData is Map &&
+        apiData.containsKey('body')) {
+      List<dynamic> groupList = apiData['body'];
+      // Find first group that matches entered group name
+      var foundGroup = groupList.firstWhere(
+        (group) =>
+            group['group_name'].toString().toLowerCase() ==
+            _groupNameController.text.toLowerCase(),
+        orElse: () => null,
+      );
+
+      // If a matching group is found, navigate, else show error
+      if (foundGroup != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GroupPage(
+              groupData: foundGroup,
+              groupName: foundGroup['group_name'],
+            ),
           ),
-        ),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Group not found!')));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('API Error: Could not fetch groups!')),
       );
     }
   }
 
-  // Build the UI [Speirs-Midterm-Takeaway.pdf]
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +79,6 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Title For like Google
                   Text(
                     'Fitness Wellness',
                     style: TextStyle(
@@ -71,8 +89,6 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ),
                   SizedBox(height: 40),
-
-                  // Search text field from TextBox Exercise
                   TextFormField(
                     controller: _groupNameController,
                     decoration: InputDecoration(
@@ -91,16 +107,13 @@ class _LandingPageState extends State<LandingPage> {
                     },
                   ),
                   SizedBox(height: 20),
-
-                  // Search button yun sa baba na dapat Google Search
                   SizedBox(
                     width: 200,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          searchGroup();
-                        }
+                        if (_formKey.currentState!.validate()) {}
+                        searchGroup();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue[900],
